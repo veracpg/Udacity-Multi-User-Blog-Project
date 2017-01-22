@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block links %}
+ <section id="login" class="container"> 
+      <div class="login-area"> 
+        <a class="login-link" href="newpost">New Post</a>
+        |
+        <a class="login-link" href="logout">Logout</a>
+      </div> 
+    </section>
+
+{% endblock %}
+{% block content %}
+    <header class="row">
+        <div class="col.md-6">
+            <h3> The Amazing Life of Blogging </h3>
+        </div>
+        <div class="col.md-6">
+            <img class="img-responsive"  src="/images/blog_img.png" alt="blog_letters">
+        </div>
+    </header>
+    <section class="container">
+        <article class="row">
+            {% for p in posts %}
+                {{p.render() | safe }}
+                <br><br>
+            {% endfor %}
+        </article>
+    </section>
+
+{% endblock %}

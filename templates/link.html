@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block links %}
+ <section id="login" class="container"> 
+      <div class="login-area"> 
+        <a class="login-link" href="blog">Blog</a>
+        |
+        <a class="login-link" href="logout">Logout</a>
+        |
+        <a class="login-link" href="newpost">New Post</a>
+      </div> 
+    </section>
+
+{% endblock %}
+{% block content %}
+  {{post.render() | safe}}
+{% endblock %}

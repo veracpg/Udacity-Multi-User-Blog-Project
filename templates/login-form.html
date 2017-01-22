@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<header class="row">
+    <div class="col.md-12">
+        <h3> Login </h3>
+    </div>
+</header>
+<form method="post" class="container singup">
+<input type="text" name="username" placeholder="Username"/><br>
+<div class="error">{{error}}</div>
+<input type="password" name="password" placeholder="Password"/><br>
+<input type="submit">
+
+{% endblock %}

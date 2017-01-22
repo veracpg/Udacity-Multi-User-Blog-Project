@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="row">
+    <div class="col.md-12">
+        <h3> Sign Up </h3>
+    </div>
+</header>
+<form method="post" class="container singup">
+    <input type="text" name="username" placeholder="Username" value=""/><br>
+    <div class="error">{{error_username}}</div>
+    <input type="password" name="password" placeholder="Password" value=""/><br>
+    <div class="error">{{error_password}}</div>
+    <input type="password" name="verify" placeholder="Verify Password" value=""/><br>
+    <div class="error">{{error_verify}}</div>
+    <input type="text" name="email" placeholder="Email" value=""/><br>
+    <div class="error">{{error_email}}</div>
+    <div class="checkboxy">
+        <input name="cecky" id="checky" value="1" type="checkbox" /> <label class="terms">I accept the terms of use</label>
+    </div>
+    <input type="submit">
+ {% endblock %}

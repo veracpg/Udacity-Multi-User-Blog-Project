@@ -1,0 +1,248 @@
+
+/*base.html CSS*/
+
+body {
+    background:white !important;
+    position: relative;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.login-area {
+    text-align: right;
+    margin-top: 25px;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif;
+    color: lightcoral
+}
+.about {
+    background:lightcoral;
+    padding-top: 50px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-bottom: 50px;
+    width: 100%;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif;
+    font-size: 20px;
+    text-align: center;
+    color:white;
+    font-style: italic;
+}
+
+.img-responsive {
+    position: relative;
+    width: 100%;
+    margin-top: 25px;
+}
+
+.name {
+    color: white;
+    position: absolute;
+    text-align: center;
+    font-size: 125px;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif;
+    top: 300px;
+    left: 0;
+    width: 100%; 
+}
+
+.descrip {
+    position: absolute;
+    text-align: center;
+    font-size: 30px;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif;
+    top: 500px;
+    left: 0;
+    width: 100%; 
+}
+
+.back {
+    color:lightcoral;
+    font-size: 45px;
+}
+
+ .footer {
+     margin-top: 100px;
+     text-align: center;
+     color: lightslategrey;
+ }
+
+ .name-f {
+     color: lightcoral;
+ }
+
+.btn {
+  display: block;
+  -ms-grid-row-align: center;
+}
+
+.btn-facebook {
+  color: lightcoral;
+}
+
+.btn-twitter {
+  color: lightcoral;
+}
+
+.btn-github {
+  color: lightcoral;
+}
+
+@media only screen and (min-device-width : 320px) and (max-device-width : 770px) {
+
+  .dis-vera {
+    font-size: 20px;
+    text-align: center;
+    padding-top: 5%;
+  }
+
+  .btn-lg {
+    padding-left: 20%;
+    font-size: 3em;
+    display: inline-flex;
+  }
+
+  .img-responsive {
+    display: inline;
+    padding-left: 5%;
+  }
+}
+
+/* Forms CSS*/
+
+h3 {
+    background: grey;
+    color:white !important;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif !important;
+    text-align: left;
+    width: 100%;
+    padding-bottom: 50px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 50px;
+}
+
+.singup {
+    margin-top: 50px;
+    padding: 25px 25px 25px;
+    background: #fff;
+    box-shadow: 
+        0px 0px 0px 5px rgba( 255,255,255,0.4 ), 
+        0px 4px 20px rgba( 0,0,0,0.33 );
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    display: table;
+    position: static;
+}
+
+input[type=text] {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    margin-top: 25px;
+}
+
+input[type=password] {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    margin-top: 25px;
+}
+
+input[type=submit] {
+    display: block;
+    width: 25%;
+    background-color:lightcoral;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    font-size: 18px;
+}
+
+input[type=submit]:hover {
+    background-color:grey;
+}
+
+label {
+display: block;
+color:lightsteelblue;
+font-size: 14px;
+}
+
+label:first-of-type {
+    margin-top: 50px;
+} 
+
+.error {
+    color: red;
+}
+
+/*Newpost button CSS*/
+
+.newpost-button {
+    border: none;
+    font-size: 24px;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif;
+    color: white;
+    margin-left: 50px;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+.newpost-button:hover {
+    background-color: lightcoral;
+}
+
+/* Post CSS */
+
+.post {
+    margin-top: 50px;
+}
+
+.post-title {
+    background:lightcoral;
+    color:white !important;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif !important;
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.post-date {
+    color:grey !important;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif !important;
+    font-size: 14px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.post-content {
+    color:grey !important;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif !important;
+    font-size: 14px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    border: 2px solid lightcoral;
+    box-shadow: 
+    0px 0px 0px 5px rgba( 255,255,255,0.4 ), 
+    0px 4px 20px rgba( 0,0,0,0.33 );
+    padding-top: 25px;
+    padding-right: 25px;
+    padding-left: 25px;
+    padding-bottom: 25px;
+}
