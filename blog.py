@@ -129,9 +129,18 @@ class Post(db.Model):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str('post.html', p = self)
 
+class Comment(db.Model):
+    post_id = db.IntegerProperty(required=True)
+    comment = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+
+class Like(db.Model):
+     post_id = db.IntegerProperty(required=True)
+
 class BlogFront(BlogHandler):
     def get(self):
-        posts = db.GqlQuery("select * from Post order by created desc limit 5")
+        posts = greetings = Post.all().order('-created')
         self.render('blog.html', posts = posts)
 
 class PostPage(BlogHandler):
@@ -139,11 +148,18 @@ class PostPage(BlogHandler):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
 
+        comments = db.GqlQuery("select * from Comment where post_id = " +
+                               post_id + " order by created desc")
+
+        likes = db.GqlQuery("select * from Like where post_id="+post_id)
+
         if not post:
             self.error(404)
             return
 
-        self.render('link.html', post = post)
+        self.render('link.html', post = post, likes =likes.count(), comments=comments, error=error)
+
+
 
    # New Post #
 
@@ -162,7 +178,7 @@ class NewPost(BlogHandler):
         else:
             error = "Subject and Content not valid"
             self.render('newpost.html', subject = subject, content = content, error = error )
-
+   
 ### Parameters sign up validation
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -272,6 +288,7 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                 ('/blog', BlogFront),
                                 ('/newpost', NewPost),
                                 ('/([0-9]+)', PostPage),
-                                ('/logout', Logout)
+                                ('/logout', Logout),
+                                # ('/comment', PostComment)
                                 ],
                                 debug=True)

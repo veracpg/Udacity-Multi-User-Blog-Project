@@ -12,7 +12,7 @@
     <title>Post</title>
 </head>
 <body>
-    
+
     <div class="post">
         <div class="post-heading">
             <div class="post-title">
@@ -28,5 +28,21 @@
             {{p._render_text | safe}}
         </div>
     </div>
+
+        <section id="login" class="container"> 
+            <div class="login-area"> 
+                <div class="error">{{error_own}}</div>   
+                <a class="login-link" href="">Like</a>
+                |
+                <a class="login-link" href="comment">Comment</a>
+                |
+                <a class="login-link" href="">Edit</a>
+                |
+                <a class="login-link" href="">Delete</a>
+            </div>   
+         </section>
+        <div class="cold-md-12">
+            <hr class="line-tkick">
+        </div>
 </body>
 </html>

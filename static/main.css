@@ -246,3 +246,7 @@ label:first-of-type {
     padding-left: 25px;
     padding-bottom: 25px;
 }
+
+.line-tkick {
+    border-bottom: 5px solid lightcoral;
+}

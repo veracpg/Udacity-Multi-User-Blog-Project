@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block links %}
+ <section id="login" class="container"> 
+      <div class="login-area"> 
+        <a class="login-link" href="blog">Blog</a>
+        |
+        <a class="login-link" href="logout">Logout</a>
+      </div> 
+    </section>
+
+{% endblock %}
+
+{% block content %}
+  {{post.render() | safe}}
+{% endblock %}
+
+{% block content %}
+<header class="row">
+    <div class="col.md-12">
+        <h3> Be Kind! </h3>
+    </div>
+</header>
+
+<form method="post" class="container singup">
+    <div class="error">{{error}}</div>   
+    <textarea name="content" rows="20" cols="150" placeholder="Post your comment...">{{comment}}</textarea><br>
+    <button type="submit">Post</button>
+</form>
+
+{% endblock %}
