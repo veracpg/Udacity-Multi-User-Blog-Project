@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block links %}
  <section id="login" class="container"> 
-      <div class="login-area"> 
+      <div class="login-area">
+        {% if user %}
+        {{user.name}}
+        {% endif %}
         <a class="login-link" href="blog">Blog</a>
         |
         <a class="login-link" href="logout">Logout</a>
@@ -13,4 +16,38 @@
 {% endblock %}
 {% block content %}
   {{post.render() | safe}}
+     <form method="POST" action="?like=True">
+        <div id="outer">
+            <div class="inner"><input type="submit" class="btn btn-success" name='like' value='&#128077 {{likes}}'> </div>
+            <div class="inner"><input type="submit" class="btn btn-warning" name='unlike' value='&#128078; {{unlikes}}'></div>
+            <div class="inner"><input type="submit" class="btn btn-info" name='edit' value='&#9998'></div>
+            <div class="inner"><input type="submit" class="btn btn-danger" name='delete' value="&#9003;"></div>
+        </div>
+    </form>
+  
+    <span class="alert-danger">{{error}}</span>
+    {% for c in post_comments %}
+    <section class="container">
+        <article class="row">
+          <div class="post-date">
+            <small>{{c.user.name}} on {{c.created.strftime("%b %d, %Y")}}</small>
+          </div>
+          <div class="comment-content">
+            <strong>{{c.comment | safe}}</strong>
+          </div>
+    {% endfor %}
+        </article>
+    </section>
+ <form method="POST" class="container">
+        <label>Add Comment</label><br>
+        <textarea class="content" name="comment_text" style="width:400px;height:100px;">{{Comment}}</textarea>
+        
+        <br>
+        <div class="error">{{comment_error}}</div>
+        <input type="submit" class="btn btn-success" name="add_comment" value="Post">
+  </form>
+
 {% endblock %}
+
+
+

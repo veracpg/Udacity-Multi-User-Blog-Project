@@ -2,6 +2,10 @@
 {% block links %}
  <section id="login" class="container"> 
       <div class="login-area"> 
+        {% if user %}
+        {{user.name}}
+        {% endif %}
+        |
         <a class="login-link" href="newpost">New Post</a>
         |
         <a class="login-link" href="logout">Logout</a>
@@ -14,7 +18,7 @@
         <div class="col.md-6">
             <h3> The Amazing Life of Blogging </h3>
         </div>
-        <div class="col.md-6">
+        <div class="col.md-12">
             <img class="img-responsive"  src="/images/blog_img.png" alt="blog_letters">
         </div>
     </header>
