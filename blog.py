@@ -88,7 +88,7 @@ def valid_pw(name, password, h):
 def users_key(group='default'):
     return db.Key.from_path('users', group)
 
-### USER ID object Class Model ###
+ ### USER ID object Class Model ###
 
 class User(db.Model):
     name = db.StringProperty(required = True)
@@ -123,15 +123,13 @@ class User(db.Model):
 def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
-
 class Post(db.Model):
     
     content = db.TextProperty(required = True)
     subject = db.StringProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
-    user = db.ReferenceProperty(User)
-    likes = db.IntegerProperty(default=0)
+    user = db.ReferenceProperty(User, required = True)
 
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
@@ -144,8 +142,8 @@ class Comment(db.Model):
     comment = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
-    user = db.ReferenceProperty(User)
-    post = db.ReferenceProperty(Post)
+    user = db.ReferenceProperty(User, required = True)
+    post = db.ReferenceProperty(Post, required = True)
 
     @classmethod
     def count_by_pid(cls, post_id):
@@ -159,8 +157,8 @@ class Comment(db.Model):
 
 ### LIKES Class Model ###
 class Like(db.Model):
-    user = db.ReferenceProperty(User)
-    post = db.ReferenceProperty(Post)
+    user = db.ReferenceProperty(User, required = True)
+    post = db.ReferenceProperty(Post, required = True)
 
     @classmethod
     def count_by_pid(cls, post_id):
@@ -174,10 +172,8 @@ class Like(db.Model):
 
 ### UNLIKES Class Model ###
 class Unlike(db.Model):
-    user = db.ReferenceProperty(User)
-    post = db.ReferenceProperty(Post)
-    created = db.DateTimeProperty(auto_now_add=True)
-    last_modified = db.DateTimeProperty(auto_now=True)
+    user = db.ReferenceProperty(User, required = True)
+    post = db.ReferenceProperty(Post, required = True)
 
     @classmethod
     def count_by_pid(cls, post_id):
@@ -203,38 +199,210 @@ class PostPage(BlogHandler):
     def get(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
-        post_comments = Comment.all().filter('post=', post_id).order('created')
-        comments_count = Comment.count_by_pid(post)
-        likes = Like.count_by_pid(post)
-        unlikes = Unlike.count_by_pid(post)
-
+        
+        # error 404 if criteria does not match
         if not post:
             self.error(404)
             return
+        # Get likes, unlikes & comments
 
-        self.render('link.html', post = post,  
-                    post_comments = post_comments,
+        likes = Like.count_by_pid(post)
+        unlikes = Unlike.count_by_pid(post)
+        post_comments = Comment.all_by_pid(post)
+        comments_count = Comment.count_by_pid(post)
+
+        self.render('link.html', post = post,
                     likes = likes,
-                    unlikes = unlikes)
+                    unlikes = unlikes,
+                    post_comments = post_comments,
+                    comments_count = comments_count)
         
     def post(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
         user_id = User.by_name(self.user.name)
-        post_comments = Comment.all_by_pid(post)
         comments_count = Comment.count_by_pid(post)
+        post_comments = Comment.all_by_pid(post)
         likes = Like.count_by_pid(post)
         unlikes = Unlike.count_by_pid(post)
         previously_liked = Like.check_like(post, user_id)
         previously_unliked = Unlike.check_unlike(post, user_id)
+        
+        if self.user:
+            if self.request.get('like'):
+                if post.user.key().id() != User.by_name(self.user.name).key().id():
+                    if previously_liked == 0:
+                        l = Like(post = post,
+                                user = User.by_name(self.user.name))
+                        l.put()
+                        self.redirect('/%s' % str(post.key().id()))
+                    else:
+                        error = "Dude you already like this post!"
+                        self.render('link.html', post = post,
+                                    likes = likes,
+                                    unlikes = unlikes,
+                                    post_comments=post_comments,
+                                    comments_count=comments_count,
+                                    error = error)
+                else:
+                    error = "Dude people that like their own posts are just sad!"
+                    self.render('link.html', post = post,
+                                likes = likes,
+                                unlikes = unlikes,
+                                post_comments=post_comments,
+                                comments_count=comments_count, 
+                                error = error)
 
-        if self.request.get('add_comment'):
-            comment_text = self.request.get('comment_text')
-            if comment_text:
-                c = Comment(post=post, user=user_id, post_comment=comment_text)
-                c.put()
+            if self.request.get("unlike"):
+                if post.user.key().id() != User.by_name(self.user.name).key().id():
+                    if previously_unliked == 0:
+                        ul = Unlike( post = post, user = User.by_name(self.user.name))
+                        ul.put()
+                        self.redirect('/%s' % str(post.key().id()))
+                    else:
+                        error = "Dude you already unlike this post!"
+                        self.render('link.html', post = post,
+                                    likes = likes,
+                                    unlikes = unlikes,
+                                    post_comments=post_comments,
+                                    comments_count=comments_count,
+                                    error = error)
+                else:
+                    error = "Dude don't be hard on yourself!"
+                    self.render('link.html', post = post,
+                                likes = likes,
+                                unlikes = unlikes,
+                                post_comments=post_comments,
+                                comments_count=comments_count,
+                                error = error)
+
+            if self.request.get("add_comment"):
+                comment = self.request.get("comment_text")
+
+                if comment:
+                    c = Comment(post=post, user=User.by_name(self.user.name), comment=comment)
+                    c.put()
+                    self.redirect('/%s' % str(post.key().id()))
+                else:
+                    error = "Please write your comment"
+                    self.render('link.html', post = post,
+                                likes = likes,
+                                unlikes = unlikes,
+                                post_comments=post_comments,
+                                comments_count=comments_count,
+                                error = error)
+
+            if self.request.get("edit"):
+                if post.user.key().id() == User.by_name(self.user.name).key().id():
+                    self.render ("editpost.html")
+                else:
+                    error = "Not cool to edit other user post"
+                    self.render('link.html', post = post,
+                                likes = likes,
+                                unlikes = unlikes,
+                                post_comments=post_comments,
+                                comments_count=comments_count,
+                                error = error)
+            if self.request.get("delete"):
+                if post.user.key().id() == User.by_name(self.user.name).key().id():
+                    db.delete(key)
+                    self.redirect ('/blog')
+                else:
+                    error = "Not cool to delete other user post"
+                    self.render('link.html', post = post,
+                                likes = likes,
+                                unlikes = unlikes,
+                                post_comments=post_comments,
+                                comments_count=comments_count,
+                                error = error)
+        else:
+            self.redirect("/signup")
+
+### EDIT POST ###
+
+class EditPost(BlogHandler):
+    def get(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        post = db.get(key)
+
+        if self.user:
+            if post.user.key().id() == User.by_name(self.user.name).key().id():
+                self.render('editpost.html', post = post)
+            else:
+                self.response.out.write ("Not cool to edit other user post")
+        else:
+            self.redirect("/signup")
+
+    def post(self, post_id):
+        key = db.Key.from_path('Post', int(post_id), parent=blog_key())
+        post = db.get(key)
+
+        if self.request.get("update"):
+            subject = self.request.get("subject")
+            content = self.request.get("content")
+
+            if post.user.key().id() == User.by_name(self.user.name).key().id():
+                if subject and content:
+                    post.subject = subject
+                    post.content = content
+                    post.put()
+                    self.redirect('/%s' % str(post.key().id()))
+                else:
+                    error = "I think you forgot something..."
+                    self.render('editpost.html', subject = subject,
+                                content = content,
+                                error = error)
+            else:
+                self.response.out.write("Not cool to edit other user post")
+        elif self.request.get("cancel"):
+            self.redirect('/%s' % str(p.key().id()))
+
+### EDIT COMMENT ###
+
+class EditComment(BlogHandler):
+    def get(self, post_is, comment_id):
+        post = Post.get_by_id(int(post_id), parent=blog_key())
+        comment = Commment.get_by_id(int(comment_id))
+
+        if comment:
+            if comment.user.name == self.user.name:
+                self.render("editcomment.html", comment_text = comment_text)
+            else:
+                error = "Not cool to edit other user comment"
+                self.render("editcomment.html",comment_text = comment_text, error = error)
+        else:
+            self.write("Heads up this comment no longer exists")
+    
+    def post(self, post_id, comment_id):
+        if self.request.get("update_comment"):
+            comment = Commment.get_by_id(int(comment_id))
+
+            if comment.user.name == self.user.name:
+                comment.text = self.request.get("comment_text")
+                comment.put()
                 self.redirect('/%s' % str(p.key().id()))
+            else:
+                error = "Not cool to edit other user comment"
+                self.render("editcomment.html",comment_text = comment_text, error = error)
+        elif self.request.get("cancel"):
+            self.redirect('/%s' % str(p.key().id()))
+       
+### DELETE COMMENT ###
 
+class DeleteComment(BlogHandler):
+    def get(self, post_id, comment_id):
+        post = Post.get_by_id(int(post_id), parent=blog_key())
+        comment = Commment.get_by_id(int(comment_id))
+
+        if comment:
+            if comment.user.name == self.user.name:
+                db.delete(comment)
+                self.redirect('/%s' % str(p.key().id()))
+            else:
+                self.write("Not cool delete other user comment")
+        else:
+            self.write("Heads up this comment no longer exists")
+    
 
 ### NEW POST ###
 
@@ -254,51 +422,6 @@ class NewPost(BlogHandler):
         else:
             error = "Subject and Content not valid"
             self.render('newpost.html', subject = subject, content = content, error = error )
-
-### EDIT POST ###
-
-# class EditPost(BlogHandler):
-#     def get(self):
-#         # key = db.Key.from_path('Post', int(post_id), parent=blog_key())
-#         # post = db.get(key)
-#         if self.request.get('edit'):
-#         # if post.user.key().id() == User.by_name(self.user.name).key().id():
-#             return self.render('edit_post.html')
-
-#         # else:
-#         #     msg = 'Editing not allowed'
-#         #     self.redirect('/login') 
-
-#     # def post(self, post_id):
-#     #     key = db.Key.from_path('Post', int(post_id), parent=blog_key())
-#     #     post = db.get(key)
-        
-#     #     if self.request.get('update'):
-#     #         subject = self.request.get('subject')
-#     #         content = self.request.get('content').replace('\n', '<br>')
-#     #         if subject and content:
-#     #             post.subject = subject
-#     #             post.content = content
-#     #             post.put()
-#     #             self.redirect('/%s' % str(post.key().id()))
-#     #         else:
-#     #             error = "Subject and Content not valid"
-#     #             self.render('edit_post.html', subject = subject, content = content, error = error )
-#     #     elif self.request.get('cancel'):
-#     #         self.redirect('/%s' % str(post.key().id()))
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -414,6 +537,7 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                 ('/newpost', NewPost),
                                 ('/([0-9]+)', PostPage),
                                 ('/logout', Logout),
+                                ('/edit/([0-9]+)', EditPost),
                                 ],
                                 debug=True)
 

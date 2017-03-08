@@ -16,34 +16,39 @@
 {% endblock %}
 {% block content %}
   {{post.render() | safe}}
-     <form method="POST" action="?like=True">
+     <form method="POST">
         <div id="outer">
-            <div class="inner"><input type="submit" class="btn btn-success" name='like' value='&#128077 {{likes}}'> </div>
+            <div class="inner"><input type="submit" class="btn btn-success" name='like' value='&#128077; {{likes}}'> </div>
             <div class="inner"><input type="submit" class="btn btn-warning" name='unlike' value='&#128078; {{unlikes}}'></div>
             <div class="inner"><input type="submit" class="btn btn-info" name='edit' value='&#9998'></div>
             <div class="inner"><input type="submit" class="btn btn-danger" name='delete' value="&#9003;"></div>
         </div>
     </form>
-  
-    <span class="alert-danger">{{error}}</span>
+    <section class="container">
+    {% if comments_count == 0 %}
+      <label>{{comments_count}} comment</lable>
+    {% else %}
+      <label>{{comments_count}} comments</lable>
+    {% endif %}
     {% for c in post_comments %}
+    </section>
     <section class="container">
         <article class="row">
           <div class="post-date">
             <small>{{c.user.name}} on {{c.created.strftime("%b %d, %Y")}}</small>
           </div>
           <div class="comment-content">
-            <strong>{{c.comment | safe}}</strong>
+            <strong>{{c.comment}}</strong>
           </div>
     {% endfor %}
         </article>
     </section>
  <form method="POST" class="container">
         <label>Add Comment</label><br>
-        <textarea class="content" name="comment_text" style="width:400px;height:100px;">{{Comment}}</textarea>
+        <textarea class="content" name="comment_text" style="width:400px;height:100px;">{{comment | safe}}</textarea>
         
         <br>
-        <div class="error">{{comment_error}}</div>
+        <div class="error">{{error}}</div>
         <input type="submit" class="btn btn-success" name="add_comment" value="Post">
   </form>
 

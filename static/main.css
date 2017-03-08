@@ -45,7 +45,7 @@ body {
     color: white;
     position: absolute;
     text-align: center;
-    font-size: 125px;
+    font-size: 100px;
     font-family: 'Overpass Mono', monospace, Arial, sans-serif;
     top: 300px;
     left: 0;
@@ -55,7 +55,7 @@ body {
 .descrip {
     position: absolute;
     text-align: center;
-    font-size: 30px;
+    font-size: 20px;
     font-family: 'Overpass Mono', monospace, Arial, sans-serif;
     color: white;
     top: 500px;
@@ -244,6 +244,13 @@ label:first-of-type {
     font-size: 14px;
     margin-top: 25px;
     margin-bottom: 25px;
+}
+
+.alert-danger {
+    display: block;
+    font-family: 'Overpass Mono', monospace, Arial, sans-serif !important;
+    text-align: center;
+    font-size: 20px;
 }
 
 .post-content {
