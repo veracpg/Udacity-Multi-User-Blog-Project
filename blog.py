@@ -129,7 +129,7 @@ class Post(db.Model):
     subject = db.StringProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
-    user = db.ReferenceProperty(User, required = True)
+    user = db.ReferenceProperty(User, required = True, collection_name="blogs")
 
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
@@ -139,7 +139,7 @@ class Post(db.Model):
 ### COMMENTS Class Model ###
 
 class Comment(db.Model):
-    comment = db.TextProperty(required = True)
+    comment_text = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
     user = db.ReferenceProperty(User, required = True)
@@ -206,15 +206,15 @@ class PostPage(BlogHandler):
             return
         # Get likes, unlikes & comments
 
-        likes = Like.count_by_pid(post)
-        unlikes = Unlike.count_by_pid(post)
-        post_comments = Comment.all_by_pid(post)
-        comments_count = Comment.count_by_pid(post)
+        likes = Like.count_by_pid(post_id)
+        unlikes = Unlike.count_by_pid(post_id)
+        post_comments = Comment.all().filter('post=', post_id).order('created')
+        comments_count = Comment.count_by_pid(post_id)
 
         self.render('link.html', post = post,
                     likes = likes,
                     unlikes = unlikes,
-                    post_comments = post_comments,
+                    comment = post_comments,
                     comments_count = comments_count)
         
     def post(self, post_id):
@@ -222,7 +222,7 @@ class PostPage(BlogHandler):
         post = db.get(key)
         user_id = User.by_name(self.user.name)
         comments_count = Comment.count_by_pid(post)
-        post_comments = Comment.all_by_pid(post)
+        post_comments = Comment.all().filter('post=', post_id).order('created')
         likes = Like.count_by_pid(post)
         unlikes = Unlike.count_by_pid(post)
         previously_liked = Like.check_like(post, user_id)
@@ -241,7 +241,7 @@ class PostPage(BlogHandler):
                         self.render('link.html', post = post,
                                     likes = likes,
                                     unlikes = unlikes,
-                                    post_comments=post_comments,
+                                    comment = post_comments,
                                     comments_count=comments_count,
                                     error = error)
                 else:
@@ -249,7 +249,7 @@ class PostPage(BlogHandler):
                     self.render('link.html', post = post,
                                 likes = likes,
                                 unlikes = unlikes,
-                                post_comments=post_comments,
+                                comment =post_comments,
                                 comments_count=comments_count, 
                                 error = error)
 
@@ -264,23 +264,23 @@ class PostPage(BlogHandler):
                         self.render('link.html', post = post,
                                     likes = likes,
                                     unlikes = unlikes,
-                                    post_comments=post_comments,
-                                    comments_count=comments_count,
+                                    comment = post_comments,
+                                    comments_count = comments_count,
                                     error = error)
                 else:
                     error = "Dude don't be hard on yourself!"
                     self.render('link.html', post = post,
                                 likes = likes,
                                 unlikes = unlikes,
-                                post_comments=post_comments,
+                                comment = post_comments,
                                 comments_count=comments_count,
                                 error = error)
 
             if self.request.get("add_comment"):
-                comment = self.request.get("comment_text")
+                comment_text = self.request.get("comment_text")
 
-                if comment:
-                    c = Comment(post=post, user=User.by_name(self.user.name), comment=comment)
+                if comment_text:
+                    c = Comment(post=post, user=User.by_name(self.user.name), comment_text=comment_text)
                     c.put()
                     self.redirect('/%s' % str(post.key().id()))
                 else:
@@ -288,7 +288,7 @@ class PostPage(BlogHandler):
                     self.render('link.html', post = post,
                                 likes = likes,
                                 unlikes = unlikes,
-                                post_comments=post_comments,
+                                comment=post_comments,
                                 comments_count=comments_count,
                                 error = error)
 
@@ -324,7 +324,7 @@ class EditPost(BlogHandler):
     def get(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
-
+       
         if self.user:
             if post.user.key().id() == User.by_name(self.user.name).key().id():
                 self.render('editpost.html', post = post)
@@ -336,17 +336,18 @@ class EditPost(BlogHandler):
     def post(self, post_id):
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
+        subject = self.request.get('subject')
+        content = self.request.get('content')
+        user_id = User.by_name(self.user.name)
 
         if self.request.get("update"):
-            subject = self.request.get("subject")
-            content = self.request.get("content")
-
             if post.user.key().id() == User.by_name(self.user.name).key().id():
                 if subject and content:
-                    post.subject = subject
-                    post.content = content
-                    post.put()
-                    self.redirect('/%s' % str(post.key().id()))
+                    subject = subject
+                    content = content
+                    p = Post(parent = blog_key(), subject = subject, content = content, user = user_id)
+                    p.put()
+                    self.redirect('/%s' % str(p.key().id()))
                 else:
                     error = "I think you forgot something..."
                     self.render('editpost.html', subject = subject,
@@ -354,6 +355,7 @@ class EditPost(BlogHandler):
                                 error = error)
             else:
                 self.response.out.write("Not cool to edit other user post")
+
         elif self.request.get("cancel"):
             self.redirect('/%s' % str(p.key().id()))
 
@@ -502,7 +504,7 @@ class Welcome(BlogHandler):
         if self.user:
             self.render('welcome.html', username = self.user.name)
         else:
-            self.redirect('/sigup')
+            self.redirect('/signup')
         
 ### Login ###
 
