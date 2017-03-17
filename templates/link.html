@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block links %}
- <section id="login" class="container"> 
+ <section id="login" class="container">
       <div class="login-area">
         {% if user %}
         {{user.name}}
@@ -10,7 +10,7 @@
         <a class="login-link" href="logout">Logout</a>
         |
         <a class="login-link" href="newpost">New Post</a>
-      </div> 
+      </div>
     </section>
 
 {% endblock %}
@@ -30,29 +30,29 @@
     {% else %}
       <label>{{comments_count}} comments</lable>
     {% endif %}
-    {% for c in post_comments %}
     </section>
-    <section class="container">
-        <article class="row">
-          <div class="post-date">
-            <small>{{c.user.name}} on {{c.created.strftime("%b %d, %Y")}}</small>
-          </div>
-          <div class="comment-content">
-            <strong>{{c.comment_text}}</strong>
-          </div>
-    {% endfor %}
-        </article>
-    </section>
+    {% if comments %}
+      {% for c in comments %}
+      <section class="container">
+          <article class="row">
+            <div class="post-date">
+              <small>{{c.user.name}} on {{c.created.strftime("%b %d, %Y")}}</small>
+            </div>
+            <div class="comment-content">
+              <strong>{{c.comment_text}}</strong>
+            </div>
+          </article>
+      </section>
+      {% endfor %}
+    {% else %}
+    <p>No Comments passed</p>
+    {% endif %}
  <form method="POST" class="container">
         <label>Add Comment</label><br>
         <textarea class="content" name="comment_text" style="width:400px;height:100px;">{{comment_text | safe}}</textarea>
-        
         <br>
         <div class="error">{{error}}</div>
         <input type="submit" class="btn btn-success" name="add_comment" value=Post>{{add_comment}} </input>
   </form>
 
 {% endblock %}
-
-
-

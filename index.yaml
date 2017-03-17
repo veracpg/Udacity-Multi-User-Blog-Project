@@ -14,3 +14,15 @@ indexes:
   properties:
   - name: post=
   - name: created
+
+- kind: Comment
+  properties:
+  - name: post=
+  - name: created
+    direction: desc
+
+- kind: Comment
+  ancestor: yes
+  properties:
+  - name: created
+    direction: desc
